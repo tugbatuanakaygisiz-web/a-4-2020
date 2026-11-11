@@ -1,0 +1,16 @@
+AI4I 2020 - Makine arizasi tahmini (sinav cozumu)
+Tugba Tuana Kaygisiz - Ogrenci No: 2511317024 - MAKU-FEF Veri Bilimi ve Analitigi
+Makine Ogrenmesi Arasinavi, 2026-2027 Guz
+
+Icerik
+  sinav_cozumu.ipynb   Butun analiz ve modeller (kod + cikti). Soru 1, 2, 3 sirasiyla.
+  sinav_cozumu.html    Ayni defterin tarayicida acilan hali (Python gerekmez).
+  data/ai4i2020.csv    UCI AI4I 2020 veri seti (https://archive.ics.uci.edu/dataset/601)
+  requirements.txt     Gerekli Python paketleri
+
+Calistirma
+  pip install -r requirements.txt
+  jupyter nbconvert --to notebook --execute --inplace sinav_cozumu.ipynb
+  (ya da defteri Jupyter / VS Code ile acip "Run All")
+
+Defter grafik ve tablolari ../ciktilar klasorune yazar. Sonuclar random_state=42 ile tekrarlanabilir.

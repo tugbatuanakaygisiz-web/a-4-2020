@@ -1,0 +1,7 @@
+Model,Girdi,CV_F1 (5x5),CV_Recall,Precision,Recall,F1,FN (kaçan arıza),FP (yanlış alarm)
+Lojistik Regresyon,ham sütunlar,0.315 ± 0.065,0.204,0.615,0.118,0.198,60,5
+Lojistik Regresyon,+ yeni özellikler,0.398 ± 0.065,0.277,0.591,0.191,0.289,55,9
+KNN,ham sütunlar,0.510 ± 0.061,0.39,0.628,0.397,0.486,41,16
+KNN,+ yeni özellikler,0.518 ± 0.057,0.467,0.552,0.544,0.548,31,30
+Karar Ağacı,ham sütunlar,0.685 ± 0.048,0.616,0.806,0.735,0.769,18,12
+Karar Ağacı,+ yeni özellikler,0.891 ± 0.029,0.818,1.0,0.779,0.876,15,0

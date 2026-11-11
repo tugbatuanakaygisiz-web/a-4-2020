@@ -1,0 +1,4 @@
+Model,Rastgele_F1,Zaman_F1,Rastgele_Recall,Zaman_Recall,Rastgele_Precision,Zaman_Precision,Zaman_ROC_AUC
+Lojistik Regresyon,0.1975,0.1429,0.1176,0.0769,0.6154,1.0,0.8936
+KNN,0.4865,0.5397,0.3971,0.4359,0.6279,0.7083,0.7754
+Karar Ağacı,0.7692,0.4722,0.7353,0.4359,0.8065,0.5152,0.7979

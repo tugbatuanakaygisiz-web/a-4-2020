@@ -1,0 +1,4 @@
+Model,Seçilen ayar,CV_F1,CV_F1_sapma,Eğitim_F1,denenen,süre_sn
+Lojistik Regresyon,"{'C': 10, 'class_weight': None}",0.3154,0.0417,0.3235,10,16.6
+KNN,"{'n_neighbors': 3, 'weights': 'distance'}",0.5197,0.0508,1.0,18,3.1
+Karar Ağacı,"{'class_weight': None, 'max_depth': 10, 'min_samples_leaf': 10}",0.7271,0.0442,0.7846,80,2.8

@@ -1,0 +1,7 @@
+Model,Girdi,Precision,Recall,F1,ROC_AUC,FN (kaçan arıza),FP (yanlış alarm)
+Lojistik Regresyon,ham sütunlar,1.0,0.077,0.143,0.894,36,0
+Lojistik Regresyon,+ yeni özellikler,0.833,0.128,0.222,0.905,34,1
+KNN,ham sütunlar,0.708,0.436,0.54,0.775,22,7
+KNN,+ yeni özellikler,0.525,0.538,0.532,0.764,18,19
+Karar Ağacı,ham sütunlar,0.515,0.436,0.472,0.798,22,16
+Karar Ağacı,+ yeni özellikler,1.0,0.718,0.836,0.969,11,0
