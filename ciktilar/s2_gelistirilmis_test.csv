@@ -1,0 +1,10 @@
+Model,Sürüm,Accuracy,Precision,Recall,F1,FN (kaçan arıza),FP (yanlış alarm)
+Lojistik Regresyon,"ham sütunlar (eşik 0,5)",0.9675,0.6154,0.1176,0.1975,60,5
+Lojistik Regresyon,"geliştirilmiş, eşik 0,5",0.975,0.7143,0.4412,0.5455,38,12
+Lojistik Regresyon,"geliştirilmiş, CV eşiği 0.33",0.9725,0.597,0.5882,0.5926,28,27
+KNN,"ham sütunlar (eşik 0,5)",0.9715,0.6279,0.3971,0.4865,41,16
+KNN,"geliştirilmiş, eşik 0,5",0.973,0.6167,0.5441,0.5781,31,23
+KNN,"geliştirilmiş, CV eşiği 0.05",0.973,0.6167,0.5441,0.5781,31,23
+Karar Ağacı,"ham sütunlar (eşik 0,5)",0.985,0.8065,0.7353,0.7692,18,12
+Karar Ağacı,"geliştirilmiş, eşik 0,5",0.9925,1.0,0.7794,0.876,15,0
+Karar Ağacı,"geliştirilmiş, CV eşiği 0.54",0.9925,1.0,0.7794,0.876,15,0

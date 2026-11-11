@@ -56,40 +56,43 @@ Arıza oranı: takım aşınması > 200 dk → **%15,8** (altında %2–3) · to
 | Ölçekleme | LR ve KNN'de StandardScaler; ağaçta yok | KNN uzaklıkla çalışır, ölçeksiz devir (~1.500) torku (~40) bastırırdı; ağaç ölçekten etkilenmez |
 | Sızıntı önlemi | Ölçekleme ve kodlama Pipeline içinde | Her çapraz doğrulama katında yalnız eğitim kısmından öğrenilir |
 | Aykırı değer | Silinmedi | Aykırı torklu 56 kaydın %89'u arıza: aykırı değer arıza sinyalinin kendisi |
-| Ayar seçimi | Eğitimde **5 katlı Stratified K-Fold + GridSearch**, ölçüt F1 | Test kümesi ayar seçiminde hiç kullanılmadı. Seçilenler: LR C=10 · KNN k=3 (uzaklık ağırlıklı) · ağaç derinlik 10, yaprakta ≥ 10 kayıt |
+| Yeni özellikler (geliştirilmiş sürüm) | Güç = tork × devir × 2π/60 · sıcaklık farkı · aşınma × tork · zorlanma oranı = (aşınma × tork) / tip sınırı (L 11.000, M 12.000, H 13.000; veri belgesinden). LR'ye ayrıca kareler ve ikili çarpımlar; KNN'e yalnız fizik özellikleri + devir + aşınma | Soru 1c: arıza ham sütunlardan çok birleşimlerine bağlı. LR düz çizgi çizer, kareli terimlerle "çok düşük ya da çok yüksek güç" penceresini görür; KNN'de dönem bilgisi taşıyan ham sıcaklıklar komşuluğu bozar |
+| Ayar ve eşik seçimi | Eğitimde **5 katlı Stratified K-Fold + GridSearch** (ölçüt F1); karar eşiği eğitimdeki CV tahminlerinde F1'i en yüksek yapan değer | Test kümesi ayar ve eşik seçiminde hiç kullanılmadı. Geliştirilmiş: LR C=100, eşik 0,33 · KNN k=1 · ağaç derinlik 5 (entropy) |
 
 ### b) Test kümesinde üç modelin karşılaştırması (2.000 kayıt, 68 arıza, eşik 0,5)
 
-| Model | Accuracy | Precision | Recall | F1 | Kaçan arıza (FN) | Yanlış alarm (FP) | 5×5 tekrarlı CV F1 |
-|---|---|---|---|---|---|---|---|
-| Lojistik Regresyon | 0,968 | 0,615 | 0,118 | 0,198 | 60 | 5 | 0,315 ± 0,065 |
-| KNN | 0,972 | 0,628 | 0,397 | 0,487 | 41 | 16 | 0,510 ± 0,061 |
-| **Karar Ağacı** | **0,985** | **0,806** | **0,735** | **0,769** | **18** | **12** | **0,685 ± 0,048** |
-| Kıyas: herkese "arızasız" de | 0,966 | 0 | 0 | 0 | 68 | 0 | — |
+| Model | Girdi | Accuracy | Precision | Recall | F1 | Kaçan arıza (FN) | Yanlış alarm (FP) | 5×5 tekrarlı CV F1 |
+|---|---|---|---|---|---|---|---|---|
+| Lojistik Regresyon | ham | 0,968 | 0,615 | 0,118 | 0,198 | 60 | 5 | 0,315 ± 0,065 |
+| Lojistik Regresyon | **geliştirilmiş** (eşik 0,33) | 0,973 | 0,597 | **0,588** | **0,593** | 28 | 27 | 0,634 ± 0,056 |
+| KNN | ham | 0,972 | 0,628 | 0,397 | 0,487 | 41 | 16 | 0,510 ± 0,061 |
+| KNN | **geliştirilmiş** | 0,973 | 0,617 | **0,544** | **0,578** | 31 | 23 | 0,594 ± 0,047 |
+| Karar Ağacı | ham | 0,985 | 0,806 | 0,735 | 0,769 | 18 | 12 | 0,685 ± 0,048 |
+| **Karar Ağacı** | **geliştirilmiş** | **0,993** | **1,000** | **0,779** | **0,876** | **15** | **0** | **0,891 ± 0,031** |
+| Kıyas: herkese "arızasız" de | — | 0,966 | 0 | 0 | 0 | 68 | 0 | — |
 
-![Karışıklık matrisleri](ciktilar/s2_karisiklik.png)
+![Karışıklık matrisleri](ciktilar/s2_karisiklik_gelistirilmis.png)
 
-Sıralama hem testte hem 25 ölçümlük tekrarlı çapraz doğrulamada aynı: **Karar Ağacı > KNN > Lojistik Regresyon**. Lojistik Regresyon zayıf, çünkü her değişken için tek yönlü etki öğrenir; oysa arıza hem çok düşük hem çok yüksek güçte oluyor. Ağaç bu "iki uçlu" yapıyı eşik kurallarıyla doğrudan öğrenir.
+Fizik özellikleri üç modeli de iyileştirdi: F1 LR'de **0,20 → 0,59** (yakalanan arıza 8 → 40), KNN'de 0,49 → 0,58, ağaçta 0,77 → 0,88 (yanlış alarm 12 → 0). Sıralama testte ve 25 ölçümlük tekrarlı çapraz doğrulamada aynı: **Karar Ağacı > LR > KNN**. Kazanç dayanıklı: zaman sıralı bölmede F1 0,63 / 0,60 / 0,84; veri belgesindeki sınırlar (zorlanma oranı) çıkarılınca bile ağaç 0,867 test F1'de kalıyor. KNN'de seçilen k=1 ezbere açık; bu yüzden üretim için uygun değil.
 
 ### c) En yüksek accuracy = fabrika için en iyi model mi?
 
-Hayır, **accuracy'ye göre seçim yapılamaz.** Bu veride en yüksek accuracy'li model (ağaç, 0,985) recall ve F1'de de birinci, ama bu accuracy'nin doğru ölçüt olduğunu göstermez: üç modelin accuracy'si neredeyse aynı (0,968–0,985) iken recall 0,12 ile 0,74 arasında değişiyor. Lojistik Regresyon'un %96,8'i, hiçbir şey yapmayan boş tahminin %96,6'sıyla aynı düzeyde; ama 68 arızanın yalnız 8'ini buluyor. Fabrika için önemli olan doğru tahmin yüzdesi değil, **kaçan arıza sayısı (recall)**, **yanlış alarm yükü (precision)** ve bunların maliyetidir. En yüksek accuracy'li model bile 0,5 eşiğinde 18 arıza kaçırıyor; eşiğin ayrıca ayarlanması gerekir.
+Hayır, **accuracy'ye göre seçim yapılamaz.** Bu veride en yüksek accuracy'li model (ağaç, 0,993) recall ve F1'de de birinci, ama bu accuracy'nin doğru ölçüt olduğunu göstermez: modellerin accuracy'si neredeyse aynı (0,968–0,993) iken recall 0,12 ile 0,78 arasında değişiyor. Geliştirilmiş LR ve KNN'in accuracy'si aynı (0,973) ama biri 28, öbürü 31 arıza kaçırıyor. Lojistik Regresyon'un %96,8'i, hiçbir şey yapmayan boş tahminin %96,6'sıyla aynı düzeyde; ama 68 arızanın yalnız 8'ini buluyor. Fabrika için önemli olan doğru tahmin yüzdesi değil, **kaçan arıza sayısı (recall)**, **yanlış alarm yükü (precision)** ve bunların maliyetidir. En iyi model bile 15 arıza kaçırıyor; eşiğin fabrikanın maliyetine göre ayrıca ayarlanması gerekir.
 
-### d) Seçilen model: Karar Ağacı (operasyonel gerekçelerle)
+### d) Seçilen model: geliştirilmiş Karar Ağacı (operasyonel gerekçelerle)
 
-- **Maliyet:** Yanlış alarm 1 birim, kaçan arıza c birim sayıldı; her modelin eşiği eğitimdeki çapraz doğrulama tahminleriyle seçilip testte ölçüldü. Duruş ne kadar pahalı olursa olsun en düşük toplam maliyet ağaçta (diğerlerinin yaklaşık yarısı):
+- **Maliyet:** Yanlış alarm 1 birim, kaçan arıza c birim sayıldı; her modelin eşiği eğitimdeki çapraz doğrulama tahminleriyle seçilip testte ölçüldü (geliştirilmiş modeller). c ≤ 10 iken en düşük toplam maliyet açık ara ağaçta; c = 20'de LR yakın (271'e 322), ama 111 yanlış alarm pahasına:
 
 | Kaçan arıza maliyeti (c) | Lojistik Regresyon | KNN | **Karar Ağacı** | Ağacın eşiği → kaçan arıza / yanlış alarm |
 |---|---|---|---|---|
-| 1 | 65 | 56 | **28** | 0,51 → 18 / 10 |
-| 5 | 215 | 209 | **103** | 0,29 → 15 / 28 |
-| 10 | 346 | 344 | **175** | 0,07 → 12 / 55 |
-| 20 | 551 | 614 | **310** | 0,02 → 9 / 130 |
+| 1 | 50 | 54 | **15** | 0,54 → 15 / 0 |
+| 5 | 152 | 178 | **58** | 0,29 → 11 / 3 |
+| 10 | 233 | 333 | **113** | 0,29 → 11 / 3 |
+| 20 | **271** | 643 | 322 | 0,01 → 3 / 262 |
 
-- **Açıklanabilirlik:** Bakım ekibi alarmın nedenini okuyabilir: "tork > 65 Nm ve devir > 1.292 → arıza", "tork ≤ 13,4 Nm → arıza", "devir ≤ 1.380 ise sıcaklıklara bak", "aşınma > 204,5 dk → riskli". Bu kurallar Soru 1'deki bulgularla örtüşüyor. KNN'nin kararı "en benzer 3 kayıt böyleydi" demektir; açıklanamaz.
-- **Hız ve bakım:** 2.000 kaydı ağaç yaklaşık 2 ms'de, KNN yaklaşık 15 ms'de tahmin ediyor. KNN bütün eğitim verisini saklayıp her tahminde taramak zorunda; ağaç tek bir kural listesidir, hat kontrol sistemine gömülebilir.
-- **Kararlılık ve esneklik:** Tekrarlı ölçümde F1 sapması en düşük model. Duruş pahalıysa eşik düşürülür (c=10 için eşik 0,07: 68 arızanın 56'sı yakalanır, 55 yanlış alarm).
-- **Zayıf yanı:** Kayıtlar zaman sırasında. "İlk 8.000 kayıtla eğit, son 2.000'i tahmin et" denemesinde ağacın F1'i 0,77'den 0,47'ye düşüyor, çünkü yavaş değişen hava sıcaklığından "hangi dönemdeyiz" bilgisini ezberliyor. Çözüm 3b'de: fiziksel özelliklerle aynı testte F1 0,84.
+- **Açıklanabilirlik:** Ağaç yalnız 9 yapraklı (derinlik 5); kuralları bakım ekibi doğrudan okuyabilir: "zorlanma oranı > 1 → arıza", "güç > 9.004 W ya da < 3.496 W → arıza", "sıcaklık farkı ≤ 8,7 K ve devir ≤ 1.380 → ısı arızası riski". Bunlar Soru 1'deki bulguların aynısı. KNN'nin kararı "en benzer kayıt böyleydi" demektir; açıklanamaz.
+- **Hız ve bakım:** 2.000 kaydı ağaç ~2 ms'de, LR ~4 ms'de, KNN ~11 ms'de tahmin ediyor. KNN bütün eğitim verisini saklayıp her tahminde taramak zorunda; ağaç kısa bir kural listesidir, hat kontrol sistemine gömülebilir.
+- **Kararlılık ve zaman:** Tekrarlı ölçümde F1 0,891 ± 0,031. Zaman sıralı bölmede de (ilk 8.000 kayıtla eğit, son 2.000'i tahmin et) F1 0,84 ve sıfır yanlış alarm. Ham sütunlu ağaç bu testte 0,47'ye düşüyordu, çünkü hava sıcaklığından "hangi dönemdeyiz" bilgisini ezberliyordu; yeni ağaç hava sıcaklığını hiç kullanmıyor (önem 0).
 
 ## SORU 3 — Modeli gerçek hayatta kullanmak
 
@@ -102,7 +105,7 @@ Hayır, **accuracy'ye göre seçim yapılamaz.** Bu veride en yüksek accuracy'l
 | Değişiklik | Bu veride ölçülen etki (karar ağacı, test) | Olumsuz sonucu |
 |---|---|---|
 | **Karar eşiğini düşürmek** (0,5 → 0,2) | Kaçan arıza 18 → 15 | Yanlış alarm 12 → 35 (yaklaşık 3 kat): gereksiz bakım, alarm yorgunluğu |
-| **Fiziğe dayalı yeni özellikler:** güç = tork × devir × 2π/60; sıcaklık farkı; aşınma × tork; zorlanma oranı = (aşınma × tork) / kalite tipinin sınırı (L 11.000, M 12.000, H 13.000 — veri setinin belgesinden, veri dışı bilgi) | CV F1 0,685 → **0,891**; test F1 0,769 → **0,876**; kaçan arıza 18 → 15, yanlış alarm 12 → **0**. Zaman sıralı testte F1 0,47 → **0,84** | Sınırlar bu sentetik verinin belgesinden; kazancın büyüklüğü verinin bu kurallarla üretilmesinden. Gerçek fabrikada üretici verileriyle yeniden belirlenmeli; yanlış sınır modeli yanıltır |
+| **Fiziğe dayalı yeni özellikler** (Soru 2'de uygulandı) | Ağaç: kaçan arıza 18 → 15, yanlış alarm 12 → **0**; LR: yakalanan arıza 8 → **40**; zaman sıralı testte ağaç F1 0,47 → **0,84** | Zorlanma sınırları bu sentetik verinin belgesinden; gerçek fabrikada üretici verileriyle yeniden belirlenmeli. LR'nin kareli terimleri ezber riskini artırır |
 | **Sınıf ağırlığı / azınlık sınıfı çoğaltma** | Arızalara daha çok ağırlık → recall artar | Yanlış alarm hızla artar; yapay örnekler gerçekte olmayan arızalar üretebilir |
 | **Daha çok veri, yeni sensörler** (titreşim, akım), daha güçlü modeller | Öngörülemeyen arızaların bir kısmı görünür hâle gelir | Maliyet ve kurulum süresi; açıklanabilirlik azalır |
 

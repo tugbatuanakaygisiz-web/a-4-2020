@@ -1,0 +1,4 @@
+Model,Girdiler,Seçilen ayar,CV_F1,CV ile seçilen eşik
+Lojistik Regresyon,"5 ham + 4 fizik, kareleri ve ikili çarpımları","{'C': 100, 'class_weight': None}",0.6394,0.33
+KNN,4 fizik + devir + aşınma,"{'n_neighbors': 1, 'weights': 'uniform'}",0.6168,0.05
+Karar Ağacı,5 ham + 4 fizik,"{'class_weight': None, 'criterion': 'entropy', 'max_depth': 5, 'min_samples_leaf': 1}",0.8952,0.54
